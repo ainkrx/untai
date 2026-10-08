@@ -27,6 +27,29 @@ What has been done in this project, in order, and notes worth keeping.
 - [x] `@better-auth/drizzle-adapter` not installed separately: `better-auth` already depends on it, and `lib/auth.ts` imports `/relations-v2` from that copy.
 - [x] `.gitignore` ignores `.env` and `.env.production` instead of `.env*`, so `.env.example` can be committed.
 - [x] `.env.example` added with `DATABASE_URL`, `DIRECT_URL`, `BETTER_AUTH_SECRET` and `BETTER_AUTH_URL`.
+- [x] `auth-schema.ts` generated in the root. It holds Better Auth's four tables: `user`, `session`, `account` and `verification`. No database connection is needed for this step. https://better-auth.com/docs/installation
+
+  ```powershell
+  npx auth@latest generate
+  ```
+
+  - `role` and `bio` come from `additionalFields` in `lib/auth.ts`. The other `user` columns (`name`, `email`, `emailVerified`, `image`, `createdAt`, `updatedAt`) are Better Auth defaults.
+  - This `user` table is the only users table. Other tables point to it through `author_id` or `user_id`.
+- [x] `lib/db.ts` passes `authRelations` from `auth-schema.ts` to `drizzle()`, and `lib/auth.ts` passes the whole `auth-schema.ts` to the adapter as `schema`, as in https://better-auth.com/docs/adapters/drizzle (Relations v2). Both are needed: `authRelations` only covers `user`, `session` and `account`, so the adapter finds `verification` through `schema`.
+- [x] `drizzle.config.ts` added for drizzle-kit: reads `auth-schema.ts`, writes migrations to `drizzle/`, connects through `DIRECT_URL`. https://orm.drizzle.team/docs/get-started/neon-new
+- [x] `npx drizzle-kit generate`
+- [x] `npx drizzle-kit migrate`
+
+## Note: the two generate commands
+
+- `npx auth generate`: auth tables only, writes `auth-schema.ts`.
+- `npx drizzle-kit generate`: every table, writes SQL into `drizzle/`.
+
+Adding other tables later:
+1. Write the schema file.
+2. Add it to `schema` in `drizzle.config.ts` and its relations to `lib/db.ts`.
+3. `npx drizzle-kit generate`
+4. `npx drizzle-kit migrate`
 
 ## Note: Neon's two URLs
 
