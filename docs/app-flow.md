@@ -19,7 +19,7 @@ Personal project: a site where users upload crochet patterns and share the resul
 
 ## Roles
 
-- **User**: registers, must verify email before logging in at all. No verification, no login.
+- **Member**: registers, must verify email before logging in at all. No verification, no login.
 - **Admin**: exists only via seed. No admin signup flow.
 
 ## Entities
@@ -27,7 +27,7 @@ Personal project: a site where users upload crochet patterns and share the resul
 **User**
 - Managed by Better Auth, which creates its own tables: `user`, `session`, `account` (password login goes through here), `verification` (verification codes live here)
 - Better Auth's `user` table already has `name` (display name) and `image` (profile picture URL; the file lives in Vercel Blob)
-- Added to Better Auth's `user` table: role (`user` | `admin`), bio
+- Added to Better Auth's `user` table: role (`member` | `admin`), bio
 
 **Pattern**
 - id, author_id, title, description, images (max 5; these are the opening images shown with the title and description, separate from step images)
