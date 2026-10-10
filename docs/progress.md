@@ -39,6 +39,16 @@ What has been done in this project, in order, and notes worth keeping.
 - [x] `drizzle.config.ts` added for drizzle-kit: reads `auth-schema.ts`, writes migrations to `drizzle/`, connects through `DIRECT_URL`. https://orm.drizzle.team/docs/get-started/neon-new
 - [x] `npx drizzle-kit generate`
 - [x] `npx drizzle-kit migrate`
+- [x] `docker init`: Node 22.16.0, npm, build output `.next`, start `npm start`, port 3000. Creates `Dockerfile`, `compose.yaml`, `.dockerignore` and `README.Docker.md`. Development runs on Docker, Neon is only for deploy.
+- [x] `compose.yaml` adds `postgres:18-alpine` as service `db`, database `untai`. Version 18 because Neon runs 18. Port 5432 is open so drizzle-kit on Windows can reach it. Service `server` gets `env_file: .env` so the app in the container reads `.env`, and `depends_on: db` so Postgres starts first.
+- [x] `.env` points to Postgres in Docker, Neon URLs moved to `.env.production`, because Neon is only for deploy. `DATABASE_URL` uses host `db` for the app in the container, `DIRECT_URL` uses `localhost` for drizzle-kit on Windows.
+- [x] `pg` installed and used in `lib/db.ts`, because Drizzle needs a driver and `neon-http` only reaches Neon. https://orm.drizzle.team/docs/get-started-postgresql
+
+  ```powershell
+  npm i pg
+  npm i -D @types/pg
+  ```
+- [x] `docker compose up -d db`, then `npx drizzle-kit migrate` for the auth tables in Docker.
 
 ## Note: the two generate commands
 
