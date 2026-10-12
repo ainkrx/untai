@@ -34,7 +34,7 @@ Personal project: a site where users upload crochet patterns and share the resul
 - category: exactly one per Pattern, from this list: Outerwear, Tops, Dress, Skirt, Pants, Hats, Scarves, Gloves, Socks, Keychain, Amigurumi, Blankets, Home decor, Others
 - tags: max 25, e.g. bunny, cat, strawberry, pink. The author picks existing tags or adds a new one; a tag that already exists is not added again. All tags are stored lowercase automatically.
 - difficulty, one of 4 levels: Beginner, Easy, Intermediate, Advanced
-- steps: an ordered list, max 50; each step has its own id, a description and 1 to 3 images
+- steps: an ordered list, max 50; each step has its own id, a description, and 0 to 3 images
 - status (`private` | `in_review` | `public`), created_at, updated_at (changes only when the author saves an edit, not on submit, approval, rejection or takedown), published_at (set once, when the admin first approves it; a later re-approval after a takedown does not change it)
 - admin_reason: written by the admin when rejecting or taking down the Pattern; required for both; the author sees it in My patterns while the Pattern is `private`; it is cleared when the author submits the Pattern again
 - `private`: only visible to the author. This covers a draft, a rejected Pattern, or a taken-down Pattern. `in_review`: submitted by the author, not visible to the public until an admin approves it. `public`: published, visible per access rules below.
@@ -51,9 +51,9 @@ Personal project: a site where users upload crochet patterns and share the resul
 
 **Report**
 - id, target_type (`pattern` | `recreate`), target_id, reporter_id, reason (picked from a list: Inappropriate content, Spam, Other), note (optional text; required when the reason is Other)
-- A user has at most one `open` Report per target.
-- If the target is deleted before the admin acts (the poster deletes the Recreate, or the author deletes the Pattern), its `open` Reports become `resolved`.
-- status (`open` | `resolved`), created_at
+- A user has at most one Report per target.
+- If the target is deleted before the admin acts (the poster deletes the Recreate, or the author deletes the Pattern), its Reports are deleted.
+- created_at. A handled Report is deleted, so every Report in the table is still waiting for the admin.
 
 **StepProgress**
 - tracks a user's checked-off steps on a Pattern (not the Pattern's own author)
@@ -86,7 +86,7 @@ Personal project: a site where users upload crochet patterns and share the resul
 1. Register (name, email, password), then the user gets an email with a code and enters the code on the web to verify. The user must verify before the first login. No code entered means unsuccessful registration. Registering again with an email that is already registered (verified or not) is rejected with "email already registered". The user can request a new code to be sent to the same email. A registered but unverified user who tries to log in is sent a new code and taken to the code-entry page (Better Auth's built-in behavior with `requireEmailVerification`).
 1a. Forgot password: the user clicks "Forgot password" on the login page and enters their email, a code is sent (Better Auth Email OTP, type `forget-password`), and the user enters the code and a new password.
 2. Guest browses patterns/recreates freely; hits a login wall past step 3 of any pattern. A guest cannot check off steps or use the counters, and nothing is kept for them in the browser session; pressing a step check or a counter shows an info toast asking them to log in or register.
-3. Logged-in user uploads a Pattern (title, description, images, category, tags, difficulty, ordered steps). It is saved as `private`, and a draft can be saved half-finished. All of these must be filled before it can be submitted for admin verification: title, description, at least one image, category, at least one tag, difficulty, at least one step, and at least one image on every step.
+3. Logged-in user uploads a Pattern (title, description, images, category, tags, difficulty, ordered steps). It is saved as `private`. A draft needs the same fields as a submission, so all of these must be filled before it can be saved at all: title, description, at least one image, category, at least one tag, difficulty, at least one step, and a description on every step.
 3a. Author submits the Pattern, it waits for admin verification, and once the admin approves it, it becomes `public`. If the admin rejects it, the admin must write a reason, and it goes back to `private`, so the author can edit it and submit it again.
 4. Who can edit and delete, by status:
    - Pattern `private`: the author can edit and delete it.
@@ -100,7 +100,7 @@ Personal project: a site where users upload crochet patterns and share the resul
 6. Home page widgets. A "check this out" section with three rows (no likes): Top is sorted by average Recreate rating, with Patterns that have no Recreates yet shown last; Most reviewed is sorted by Recreate count; New shows the most recently published Patterns first (by published_at). Each row shows its top 5 Patterns with their rating and Recreate count, plus a "more" link.
 7. Search page: this is the pattern list. It has a search bar (searches title and tags with a "contains" match using Postgres ILIKE, e.g. "bun" matches "Bunny Keychain" and the tag "bunny") and filters: category (pick one), tags (pick one or more; a Pattern must have all the picked tags), difficulty (pick one or more; a Pattern matches any of the picked levels), rating (a range; when it is set, Patterns with no Recreates yet are excluded). A sort control switches between New, Top and Most reviewed; the default is New. A home row's "more" link opens this page with that row's sort already applied (New sorts by published_at, Most reviewed by Recreate count, Top by average rating with Patterns that have no Recreates yet last). Sorting never hides Patterns; only filters do.
 8. Any logged-in user reports a Pattern or Recreate, and the report enters the admin queue.
-9. Admin reviews queue, takes down offending Pattern/Recreate: a Pattern goes from `public` back to `private` with a reason the author sees in My patterns; a Recreate is deleted. Either way the report, and every other `open` report on the same target, becomes `resolved`; a report on something that isn't offending is resolved without a takedown.
+9. Admin reviews queue, takes down offending Pattern/Recreate: a Pattern goes from `public` back to `private` with a reason the author sees in My patterns; a Recreate is deleted. Either way the report, and every other report on the same target, is deleted; a report on something that isn't offending is deleted without a takedown.
 10. No notifications: authors see approvals, rejections and takedowns only as the status (and admin_reason) in My patterns. A taken-down Recreate is deleted, so it disappears from its poster's My reviews.
 
 ## Email fallback

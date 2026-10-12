@@ -49,15 +49,29 @@ What has been done in this project, in order, and notes worth keeping.
   npm i -D @types/pg
   ```
 - [x] `docker compose up -d db`, then `npx drizzle-kit migrate` for the auth tables in Docker.
+- [x] `auth-schema.ts` moved to `lib/schema/auth.ts`, next to `lib/db.ts` and `lib/auth.ts` that import it, so the root stays clean. `npx auth generate` now needs `--output lib/schema/auth.ts`.
+- [x] `lib/schema/app.ts` with the plan's tables from `docs/app-flow.md`: `pattern`, `pattern_step`, `recreate`, `report`, `step_progress`, `pattern_counter`.
+  - Steps have their own table, because StepProgress points to a step and deleting a step deletes its checks.
+  - Tags and images are text arrays on their row. A tag is only its lowercase name, and existing tags come from the other Patterns' arrays.
+  - Pattern fields required for a submission are NOT NULL, because a draft needs the same fields (`docs/app-flow.md` flow 3). Step description is NOT NULL too. Step images default to empty, since only the Pattern itself needs an image.
+  - `pattern.updated_at` is not updated automatically, because it changes only when the author saves an edit.
+  - Plain indexes are only for speed: `where author_id = X` goes straight to that user's rows instead of reading every row. The result is the same without them.
+  - No `check` constraints: only the backend writes to the database, so it checks counts, lowercase tags, rating, the Other note and counters. Unique indexes stay, because two requests at the same moment can both pass the backend check: one Recreate per user per Pattern, one Report per user per target (a handled Report is deleted, so no `status` column), one check per step, one counter row per Pattern.
+  - `appRelations` (`defineRelationsPart`, like `authRelations`) covers the app tables. Every relation is two-way, including `user` to `pattern`, `recreate`, `report`, `step_progress` and `pattern_counter`.
+  - The `user` side of those relations is in `appRelations`, not in `lib/schema/auth.ts`, because `npx auth generate` rewrites that file and `auth.ts` importing from `app.ts` would be a circular import.
+  - `user` is in both parts, so `lib/db.ts` merges the two `user` entries. A plain spread would let the app `user` replace the auth one and drop `sessions` and `accounts`.
+- [x] `drizzle.config.ts` reads the whole `lib/schema/` folder, so a new schema file there is picked up without touching the config.
+- [x] `npx drizzle-kit generate`
+- [x] `npx drizzle-kit migrate`
 
 ## Note: the two generate commands
 
-- `npx auth generate`: auth tables only, writes `auth-schema.ts`.
+- `npx auth generate --output lib/schema/auth.ts`: auth tables only.
 - `npx drizzle-kit generate`: every table, writes SQL into `drizzle/`.
 
 Adding other tables later:
 1. Write the schema file.
-2. Add it to `schema` in `drizzle.config.ts` and its relations to `lib/db.ts`.
+2. Put it in `lib/schema/` and add its relations to `lib/db.ts`.
 3. `npx drizzle-kit generate`
 4. `npx drizzle-kit migrate`
 
