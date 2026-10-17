@@ -1,5 +1,7 @@
 # Crochet pattern sharing app design
 
+Rules and flows of the app: who can do what, where each action leads, and what each page contains. How it looks is in `docs/style.md`; what has been built is in `docs/progress.md`.
+
 ## Overview
 
 Personal project: a site where users upload crochet patterns and share the results ("Recreates") of following other people's patterns. Fully free, no payments (avoids building fake/half-working monetization).
@@ -75,7 +77,7 @@ Personal project: a site where users upload crochet patterns and share the resul
 
 ## Layout
 
-- **Navbar:** logo (links to the home page), search bar (goes to the search page), an "Add Pattern" button (logged-in users only; hidden for guests), and the profile icon in the top-right corner, opening a dropdown. Logged in, the dropdown has My patterns (the author's own Patterns, every status), My reviews (the user's Recreates), Settings (name, profile picture, bio, change password), Logout. A guest gets the same icon, and its dropdown has Login and Register. Nothing else for now.
+- **Navbar:** the logo goes to the home page. Search goes to the search page and searches by text only. Category is for everyone, guests included; picking one opens the search page filtered by it. Search and Category work on their own; text and category are combined only on the search page. My patterns lists the author's own Patterns in every status, My reviews the user's Recreates, and Settings has name, profile picture, bio and change password.
 - **Public profile page:** one per user, open to every logged-in user (guests cannot open it): name, profile picture, bio, the user's `public` Patterns, and the Recreates the user has posted. The author's name on a Pattern or Recreate links to it; a guest who clicks it gets an info toast asking them to log in or register.
 - **Pattern detail page:** shows the Pattern's published date (published_at) and last-updated date (updated_at). Left column: the steps, the StepProgress checklist, and the Recreates (reviews) at the bottom, where logged-in users (not the author) post a Recreate. Right sidebar: PatternCounter (Row and Stitch).
 - **Toasts:** three kinds. Success: every action that goes through (save, submit, post, edit, delete, report, and so on). Error: every action that fails, with what went wrong. Info: guidance that is neither, such as telling a guest to log in or register.
