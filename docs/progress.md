@@ -94,6 +94,17 @@ Every item in the checklist follows these rules:
   - Writes `components.json` (style `base-mira`, icon library `phosphor`, base color `neutral`), `lib/utils.ts` (`cn`) and the theme variables in `app/globals.css`.
   - Installs `@base-ui/react`, `@phosphor-icons/react`, `class-variance-authority`, `cn`, `shadcn` and `tw-animate-css`.
   - Font is Inter: `app/layout.tsx` loads it into `--font-sans` and puts `font-sans` on `<html>`. Geist Sans is still loaded there but nothing uses it. Geist Mono stays as `--font-mono`.
+- [x] **Navbar and toast components** added into `components/ui/`, with no new packages: they use `@base-ui/react` and `@phosphor-icons/react` from the init. Other components are added when a page needs them.
+  ```powershell
+  npx shadcn@latest add button input dropdown-menu avatar sheet collapsible toast
+  ```
+  - `button`: Add Pattern.
+  - `input`: search bar.
+  - `dropdown-menu`: the profile dropdown, for logged-in users and guests.
+  - `avatar`: the profile icon.
+  - `sheet`: the hamburger menu on mobile, with the search bar and Add Pattern.
+  - `collapsible`: the category dropdown in the navbar, one component for desktop and the sheet.
+  - `toast`: success, error and info toasts. Built on Base UI Toast, so no extra toast library. Not shown anywhere yet: `<Toaster />` still has to go into `app/layout.tsx`.
 
 ## Note: the two generate commands
 
