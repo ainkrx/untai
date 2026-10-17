@@ -2,55 +2,73 @@
 
 What has been done in this project, in order, and notes worth keeping.
 
+## Format
+
+Every item in the checklist follows these rules:
+
+1. **Bold subject first.** The item starts with `- [x]`, then the subject in bold, in plain words: what the item is about (**Project**, **Auth schema**, **Docker**). The sentence continues right after it, with no colon or dash between them.
+2. **Never bold a command, file name or package.** They go in backticks after the subject: ``**Postgres driver** `pg` installed``, not ``**`pg`** installed``.
+3. **Commands in a code block.** Under the item, indented two spaces, fenced as `powershell`. Only the command itself, no `Set-Location` or `cd`.
+4. **One detail is an indented line.** Indented two spaces under the item, no bullet. Several details are indented sub-bullets (`  - `).
+5. **No blank lines in the list.** Not between items, not inside an item, not around a code block.
+6. **Docs link at the end** of the sentence it belongs to.
+7. **Longer explanations go in a `## Note: ...` section** below the checklist, as bullets.
+
 ## Setup
 
-- [x] Project created with `npx create-next-app@latest untai`
-  - Next.js 16.3.6, React 19.2.8, TypeScript, Tailwind CSS v4, ESLint, App Router (`app/`)
-- [x] `CLAUDE.md` created, adjusted to `docs/app-flow.md`
-- [x] Writing rule added to `CLAUDE.md`: no em dash or similar machine-looking marks, no hard wrapping, plain human language, no filler, for every piece of text in the project
-- [x] Better Auth and Drizzle installed, both in the root (`D:\git\untai`), since this is one Next.js project with no separate backend folder.
-
+- [x] **Project** created with:
+  ```powershell
+  npx create-next-app@latest untai
+  ```
+  Next.js 16.3.6, React 19.2.8, TypeScript, Tailwind CSS v4, ESLint, App Router (`app/`)
+- [x] **Project rules** created in `CLAUDE.md`, adjusted to `docs/app-flow.md`.
+- [x] **Writing rule** added to `CLAUDE.md`: no em dash or similar machine-looking marks, no hard wrapping, plain human language, no filler, for every piece of text in the project.
+- [x] **Better Auth and Drizzle** installed, both in the root (`D:\git\untai`), since this is one Next.js project with no separate backend folder.
   Better Auth: https://better-auth.com/docs/installation
-
   ```powershell
   npm install better-auth
   ```
-
   Drizzle with Neon: https://orm.drizzle.team/docs/get-started/neon-new
-
   ```powershell
   npm i drizzle-orm@rc @neondatabase/serverless dotenv
   npm i -D drizzle-kit@rc tsx
   ```
-- [x] Drizzle connected to Neon in `lib/db.ts` (Step 3 of the Drizzle guide, using the pooled `DATABASE_URL`). In `lib/` instead of the guide's `src/`, because this project has no `src/` and keeps shared code in root folders next to `app/`.
-- [x] Better Auth config in `lib/auth.ts`: Drizzle adapter (Relations v2, because Drizzle is the rc version), email and password login, extra `user` fields `role` (`member` or `admin`, default `member`, required so the column is never NULL, not settable by the user; register only creates members, admins come from the seeder) and `bio`. https://better-auth.com/docs/installation, https://better-auth.com/docs/concepts/database
-- [x] `@better-auth/drizzle-adapter` not installed separately: `better-auth` already depends on it, and `lib/auth.ts` imports `/relations-v2` from that copy.
-- [x] `.gitignore` ignores `.env` and `.env.production` instead of `.env*`, so `.env.example` can be committed.
-- [x] `.env.example` added with `DATABASE_URL`, `DIRECT_URL`, `BETTER_AUTH_SECRET` and `BETTER_AUTH_URL`.
-- [x] `auth-schema.ts` generated in the root. It holds Better Auth's four tables: `user`, `session`, `account` and `verification`. No database connection is needed for this step. https://better-auth.com/docs/installation
-
+- [x] **Drizzle** connected to Neon in `lib/db.ts` (Step 3 of the Drizzle guide, using the pooled `DATABASE_URL`). In `lib/` instead of the guide's `src/`, because this project has no `src/` and keeps shared code in root folders next to `app/`.
+- [x] **Better Auth config** in `lib/auth.ts`: Drizzle adapter (Relations v2, because Drizzle is the rc version), email and password login, extra `user` fields `role` (`member` or `admin`, default `member`, required so the column is never NULL, not settable by the user; register only creates members, admins come from the seeder) and `bio`. https://better-auth.com/docs/installation, https://better-auth.com/docs/concepts/database
+- [x] **Drizzle adapter** not installed separately: `better-auth` already depends on `@better-auth/drizzle-adapter`, and `lib/auth.ts` imports `/relations-v2` from that copy.
+- [x] **Git** ignores `.env` and `.env.production` instead of `.env*` (`.gitignore`), so `.env.example` can be committed.
+- [x] **Env example** added in `.env.example` with `DATABASE_URL`, `DIRECT_URL`, `BETTER_AUTH_SECRET` and `BETTER_AUTH_URL`.
+- [x] **Auth schema** generated in the root as `auth-schema.ts`. It holds Better Auth's four tables: `user`, `session`, `account` and `verification`. No database connection is needed for this step. https://better-auth.com/docs/installation
   ```powershell
   npx auth@latest generate
   ```
-
   - `role` and `bio` come from `additionalFields` in `lib/auth.ts`. The other `user` columns (`name`, `email`, `emailVerified`, `image`, `createdAt`, `updatedAt`) are Better Auth defaults.
   - This `user` table is the only users table. Other tables point to it through `author_id` or `user_id`.
-- [x] `lib/db.ts` passes `authRelations` from `auth-schema.ts` to `drizzle()`, and `lib/auth.ts` passes the whole `auth-schema.ts` to the adapter as `schema`, as in https://better-auth.com/docs/adapters/drizzle (Relations v2). Both are needed: `authRelations` only covers `user`, `session` and `account`, so the adapter finds `verification` through `schema`.
-- [x] `drizzle.config.ts` added for drizzle-kit: reads `auth-schema.ts`, writes migrations to `drizzle/`, connects through `DIRECT_URL`. https://orm.drizzle.team/docs/get-started/neon-new
-- [x] `npx drizzle-kit generate`
-- [x] `npx drizzle-kit migrate`
-- [x] `docker init`: Node 22.16.0, npm, build output `.next`, start `npm start`, port 3000. Creates `Dockerfile`, `compose.yaml`, `.dockerignore` and `README.Docker.md`. Development runs on Docker, Neon is only for deploy.
-- [x] `compose.yaml` adds `postgres:18-alpine` as service `db`, database `untai`. Version 18 because Neon runs 18. Port 5432 is open so drizzle-kit on Windows can reach it. Service `server` gets `env_file: .env` so the app in the container reads `.env`, and `depends_on: db` so Postgres starts first.
-- [x] `.env` points to Postgres in Docker, Neon URLs moved to `.env.production`, because Neon is only for deploy. `DATABASE_URL` uses host `db` for the app in the container, `DIRECT_URL` uses `localhost` for drizzle-kit on Windows.
-- [x] `pg` installed and used in `lib/db.ts`, because Drizzle needs a driver and `neon-http` only reaches Neon. https://orm.drizzle.team/docs/get-started-postgresql
-
+- [x] **Auth schema** wired in: `lib/db.ts` passes `authRelations` from `auth-schema.ts` to `drizzle()`, and `lib/auth.ts` passes the whole `auth-schema.ts` to the adapter as `schema` (Relations v2). Both are needed: `authRelations` only covers `user`, `session` and `account`, so the adapter finds `verification` through `schema`. https://better-auth.com/docs/adapters/drizzle
+- [x] **Drizzle Kit config** added in `drizzle.config.ts`: reads `auth-schema.ts`, writes migrations to `drizzle/`, connects through `DIRECT_URL`. https://orm.drizzle.team/docs/get-started/neon-new
+- [x] **Auth tables migration** generated into `drizzle/`:
+  ```powershell
+  npx drizzle-kit generate
+  ```
+- [x] **Auth tables** created in Neon:
+  ```powershell
+  npx drizzle-kit migrate
+  ```
+- [x] **Docker** set up with `docker init`: Node 22.16.0, npm, build output `.next`, start `npm start`, port 3000. Creates `Dockerfile`, `compose.yaml`, `.dockerignore` and `README.Docker.md`. Development runs on Docker, Neon is only for deploy.
+- [x] **Postgres** added to `compose.yaml`: `postgres:18-alpine` as service `db`, database `untai`. Version 18 because Neon runs 18. Port 5432 is open so drizzle-kit on Windows can reach it. Service `server` gets `env_file: .env` so the app in the container reads `.env`, and `depends_on: db` so Postgres starts first.
+- [x] **Env** in `.env` points to Postgres in Docker, Neon URLs moved to `.env.production`, because Neon is only for deploy. `DATABASE_URL` uses host `db` for the app in the container, `DIRECT_URL` uses `localhost` for drizzle-kit on Windows.
+- [x] **Postgres driver** `pg` installed and used in `lib/db.ts`, because Drizzle needs a driver and `neon-http` only reaches Neon. https://orm.drizzle.team/docs/get-started-postgresql
   ```powershell
   npm i pg
   npm i -D @types/pg
   ```
-- [x] `docker compose up -d db`, then `npx drizzle-kit migrate` for the auth tables in Docker.
-- [x] `auth-schema.ts` moved to `lib/schema/auth.ts`, next to `lib/db.ts` and `lib/auth.ts` that import it, so the root stays clean. `npx auth generate` now needs `--output lib/schema/auth.ts`.
-- [x] `lib/schema/app.ts` with the plan's tables from `docs/app-flow.md`: `pattern`, `pattern_step`, `recreate`, `report`, `step_progress`, `pattern_counter`.
+- [x] **Auth tables** created in Postgres in Docker:
+  ```powershell
+  docker compose up -d db
+  npx drizzle-kit migrate
+  ```
+- [x] **Auth schema** moved from `auth-schema.ts` to `lib/schema/auth.ts`, next to `lib/db.ts` and `lib/auth.ts` that import it, so the root stays clean. `npx auth generate` now needs `--output lib/schema/auth.ts`.
+- [x] **App schema** in `lib/schema/app.ts` with the plan's tables from `docs/app-flow.md`: `pattern`, `pattern_step`, `recreate`, `report`, `step_progress`, `pattern_counter`.
   - Steps have their own table, because StepProgress points to a step and deleting a step deletes its checks.
   - Tags and images are text arrays on their row. A tag is only its lowercase name, and existing tags come from the other Patterns' arrays.
   - Pattern fields required for a submission are NOT NULL, because a draft needs the same fields (`docs/app-flow.md` flow 3). Step description is NOT NULL too. Step images default to empty, since only the Pattern itself needs an image.
@@ -60,9 +78,15 @@ What has been done in this project, in order, and notes worth keeping.
   - `appRelations` (`defineRelationsPart`, like `authRelations`) covers the app tables. Every relation is two-way, including `user` to `pattern`, `recreate`, `report`, `step_progress` and `pattern_counter`.
   - The `user` side of those relations is in `appRelations`, not in `lib/schema/auth.ts`, because `npx auth generate` rewrites that file and `auth.ts` importing from `app.ts` would be a circular import.
   - `user` is in both parts, so `lib/db.ts` merges the two `user` entries. A plain spread would let the app `user` replace the auth one and drop `sessions` and `accounts`.
-- [x] `drizzle.config.ts` reads the whole `lib/schema/` folder, so a new schema file there is picked up without touching the config.
-- [x] `npx drizzle-kit generate`
-- [x] `npx drizzle-kit migrate`
+- [x] **Drizzle Kit config** in `drizzle.config.ts` reads the whole `lib/schema/` folder, so a new schema file there is picked up without touching the config.
+- [x] **App tables migration** generated into `drizzle/`:
+  ```powershell
+  npx drizzle-kit generate
+  ```
+- [x] **App tables** created in Postgres in Docker:
+  ```powershell
+  npx drizzle-kit migrate
+  ```
 
 ## Note: the two generate commands
 
