@@ -137,19 +137,19 @@ function ToastIcon({ type }: { type: string | undefined }) {
 
   if (type === "success") {
     icon = (
-      <CheckCircleIcon aria-hidden="true" />
+      <CheckCircleIcon className="text-green-600" aria-hidden="true" />
     )
   }
 
   if (type === "info") {
     icon = (
-      <InfoIcon aria-hidden="true" />
+      <InfoIcon className="text-blue-500" aria-hidden="true" />
     )
   }
 
   if (type === "warning") {
     icon = (
-      <WarningIcon aria-hidden="true" />
+      <WarningIcon className="text-amber-500" aria-hidden="true" />
     )
   }
 
