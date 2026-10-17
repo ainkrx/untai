@@ -112,7 +112,7 @@ Every item in the checklist follows these rules:
   - Logout does nothing yet. It gets wired up with login, since there is no way to be logged in before that.
   - Icons in this server component come from `@phosphor-icons/react/dist/ssr`.
 - [x] **Category dropdown** in the navbar. The list comes from the `category` enum in `lib/schema/app.ts`, so it stays the same as the database.
-- [ ] **Light colors** set in `:root` of `app/globals.css`: soft purple and yellow.
+- [x] **Light colors** set in `:root` of `app/globals.css`: soft purple and yellow. Which token gets which color is in `docs/style.md`.
 - [ ] **Dark colors** in `.dark` are still shadcn's gray.
 
 ## Note: the two generate commands
