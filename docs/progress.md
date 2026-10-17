@@ -87,6 +87,13 @@ Every item in the checklist follows these rules:
   ```powershell
   npx drizzle-kit migrate
   ```
+- [x] **shadcn/ui** set up with a preset of style Mira and Phosphor Icons, picked on https://ui.shadcn.com/create. It copies each component's source into `components/ui/`, so there is no component library to call at runtime. https://ui.shadcn.com/docs/cli
+  ```powershell
+  npx shadcn@latest init --preset b1D0ekG8
+  ```
+  - Writes `components.json` (style `base-mira`, icon library `phosphor`, base color `neutral`), `lib/utils.ts` (`cn`) and the theme variables in `app/globals.css`.
+  - Installs `@base-ui/react`, `@phosphor-icons/react`, `class-variance-authority`, `cn`, `shadcn` and `tw-animate-css`.
+  - Font is Inter: `app/layout.tsx` loads it into `--font-sans` and puts `font-sans` on `<html>`. Geist Sans is still loaded there but nothing uses it. Geist Mono stays as `--font-mono`.
 
 ## Note: the two generate commands
 
