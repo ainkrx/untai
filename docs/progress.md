@@ -1,6 +1,6 @@
 # Progress
 
-What has been done in this project, in order, and notes worth keeping.
+What has been done in this project, in order, with implementation notes. Rules and flows are in `docs/app-flow.md`; how it looks is in `docs/style.md`.
 
 ## Format
 
@@ -98,13 +98,22 @@ Every item in the checklist follows these rules:
   ```powershell
   npx shadcn@latest add button input dropdown-menu avatar sheet collapsible toast
   ```
-  - `button`: Add Pattern.
+  - `button`: button.
   - `input`: search bar.
-  - `dropdown-menu`: the profile dropdown, for logged-in users and guests.
+  - `dropdown-menu`: the profile dropdown.
   - `avatar`: the profile icon.
-  - `sheet`: the hamburger menu on mobile, with the search bar and Add Pattern.
+  - `sheet`: the hamburger menu.
   - `collapsible`: the category dropdown in the navbar, one component for desktop and the sheet.
   - `toast`: success, error and info toasts. Built on Base UI Toast, so no extra toast library. Not shown anywhere yet: `<Toaster />` still has to go into `app/layout.tsx`.
+- [x] **Navbar** in `components/navbar.tsx`, shown on every page from `app/layout.tsx`. Layout follows `docs/style.md`.
+  - It reads the session on the server (`auth.api.getSession`), so logged-in users and guests get different items without a client fetch. `user` is `null` for a guest.
+  - Search bar is a plain form: `/search?q=...`.
+  - Links go to pages that don't exist yet: `/patterns/new`, `/about`, `/search`, `/my/patterns`, `/my/reviews`, `/settings`, `/login`, `/register`.
+  - Logout does nothing yet. It gets wired up with login, since there is no way to be logged in before that.
+  - Icons in this server component come from `@phosphor-icons/react/dist/ssr`.
+- [x] **Category dropdown** in the navbar. The list comes from the `category` enum in `lib/schema/app.ts`, so it stays the same as the database.
+- [ ] **Light colors** set in `:root` of `app/globals.css`: soft purple and yellow.
+- [ ] **Dark colors** in `.dark` are still shadcn's gray.
 
 ## Note: the two generate commands
 
