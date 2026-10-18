@@ -5,10 +5,11 @@ How the app looks: which components are on screen, where they sit, and what they
 ## Navbar
 
 - **Hamburger menu (every screen size):** opens a `sheet` from the left: About first, then Add Pattern. Its buttons and the Category button look the same: filled, full width in the sheet.
-- **Category dropdown:** the 14 categories in two columns.
+- **Category dropdown:** the 14 categories in two columns. On desktop it closes on a click outside it or on a category, so it never sits under the theme or profile dropdown.
+- **Theme:** Light, Dark, System. On desktop, a button left of the profile icon whose icon shows the active theme (sun, moon, monitor); it opens a dropdown with the three icons in one row. On mobile, a "Theme" label in the sheet with the three as icon plus text buttons in one row. The active one is filled purple.
 - **Profile dropdown:** opens from the profile icon. Logged in: My patterns, My reviews, Settings, Logout. Guest: Login, Register.
-- **Desktop:** one row: hamburger icon, logo, search bar, Category dropdown, profile icon at the far right. The search bar and Category line up with the content column (48rem, centered). The search bar has a Search button on its right.
-- **Mobile:** one row: hamburger icon, logo, profile icon at the far right. The search bar and Category move to the top of the sheet. There, Category opens in place in two columns and pushes the rest down.
+- **Desktop:** one row: hamburger icon, logo, search bar, Category dropdown, theme button, profile icon at the far right. The search bar and Category line up with the content column (48rem, centered). The search bar has a Search button on its right.
+- **Mobile:** one row: hamburger icon, logo, profile icon at the far right. The search bar and Category move to the top of the sheet. There, Category opens in place in two columns and pushes the rest down. The theme choice sits below every menu item in the sheet.
 
 ## Toast
 

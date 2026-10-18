@@ -1,12 +1,10 @@
 import Link from "next/link"
 import { headers } from "next/headers"
-import { CaretDownIcon, ListIcon, MagnifyingGlassIcon, UserIcon } from "@phosphor-icons/react/dist/ssr"
-
+import { ListIcon, MagnifyingGlassIcon, UserIcon } from "@phosphor-icons/react/dist/ssr"
 import { auth } from "@/lib/auth"
 import { category } from "@/lib/schema/app"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button, buttonVariants } from "@/components/ui/button"
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,6 +14,8 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { CategoryToggle } from "@/components/category-toggle"
+import { ThemeMenu, ThemeOptions } from "@/components/theme-toggle"
 
 function SearchBar() {
   return (
@@ -36,28 +36,6 @@ function SearchBar() {
   )
 }
 
-function CategoryList() {
-  return (
-    <Collapsible className="relative">
-      <CollapsibleTrigger render={<Button size="lg" className="w-full" />}>
-        Category
-        <CaretDownIcon className="transition-transform group-data-panel-open/button:rotate-180" />
-      </CollapsibleTrigger>
-      <CollapsibleContent className="mt-2 grid grid-cols-2 gap-1 md:absolute md:top-full md:z-50 md:w-64 md:rounded-lg md:bg-popover md:p-1 md:shadow-md md:ring-1 md:ring-foreground/10">
-        {category.enumValues.map((name) => (
-          <Link
-            key={name}
-            href={`/search?category=${encodeURIComponent(name)}`}
-            className="rounded-md px-2 py-1.5 text-xs hover:bg-accent hover:text-accent-foreground"
-          >
-            {name}
-          </Link>
-        ))}
-      </CollapsibleContent>
-    </Collapsible>
-  )
-}
-
 export async function Navbar() {
   const session = await auth.api.getSession({ headers: await headers() })
   const user = session?.user ?? null
@@ -75,7 +53,7 @@ export async function Navbar() {
               <SheetTitle>untai</SheetTitle>
               <div className="flex flex-col gap-3 md:hidden">
                 <SearchBar />
-                <CategoryList />
+                <CategoryToggle names={category.enumValues} />
               </div>
               <Link href="/about" className={buttonVariants({ size: "lg", className: "w-full" })}>
                 About
@@ -85,6 +63,9 @@ export async function Navbar() {
                   Add Pattern
                 </Link>
               )}
+              <div className="md:hidden">
+                <ThemeOptions />
+              </div>
             </SheetContent>
           </Sheet>
           
@@ -96,9 +77,12 @@ export async function Navbar() {
           <div className="flex-1">
             <SearchBar />
           </div>
-          <CategoryList />
+          <CategoryToggle names={category.enumValues} />
         </div>
-        <div className="ml-auto md:justify-self-end">
+        <div className="ml-auto flex items-center gap-2 md:justify-self-end">
+          <div className="hidden md:block">
+            <ThemeMenu />
+          </div>
           <DropdownMenu>
             <DropdownMenuTrigger className="rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring/30">
               <Avatar>
