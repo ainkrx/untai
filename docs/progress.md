@@ -104,16 +104,46 @@ Every item in the checklist follows these rules:
   - `avatar`: the profile icon.
   - `sheet`: the hamburger menu.
   - `collapsible`: the category dropdown in the navbar, one component for desktop and the sheet.
-  - `toast`: success, error and info toasts. Built on Base UI Toast, so no extra toast library. Not shown anywhere yet: `<Toaster />` still has to go into `app/layout.tsx`.
+  - `toast`: success, info, warning, error and loading toasts. Built on Base UI Toast, so no extra toast library.
 - [x] **Navbar** in `components/navbar.tsx`, shown on every page from `app/layout.tsx`. Layout follows `docs/style.md`.
   - It reads the session on the server (`auth.api.getSession`), so logged-in users and guests get different items without a client fetch. `user` is `null` for a guest.
   - Search bar is a plain form: `/search?q=...`.
   - Links go to pages that don't exist yet: `/patterns/new`, `/about`, `/search`, `/my/patterns`, `/my/reviews`, `/settings`, `/login`, `/register`.
   - Logout does nothing yet. It gets wired up with login, since there is no way to be logged in before that.
   - Icons in this server component come from `@phosphor-icons/react/dist/ssr`.
-- [x] **Category dropdown** in the navbar. The list comes from the `category` enum in `lib/schema/app.ts`, so it stays the same as the database.
+- [x] **Category dropdown** in the navbar, in `components/category-toggle.tsx`. The list comes from the `category` enum in `lib/schema/app.ts`, so it stays the same as the database. The navbar passes the names in, so the client component does not import the schema.
+  - A collapsible does not close by itself, so on desktop an invisible layer behind the open list closes it on a click outside. It also closes when a category is clicked. On mobile it stays as before, open in place in the sheet.
 - [x] **Light colors** set in `:root` of `app/globals.css`: soft purple and yellow. Which token gets which color is in `docs/style.md`.
 - [ ] **Dark colors** in `.dark` are still shadcn's gray.
+- [x] **Theme package** `next-themes` installed, as in shadcn's Next.js dark mode guide. https://ui.shadcn.com/docs/dark-mode/next
+  ```powershell
+  npm install next-themes
+  ```
+- [x] **Theme provider** from `next-themes` wraps the app in `app/layout.tsx`: class on `<html>`, System by default. Imported straight from the package, since it already ships as a client component, so no `components/theme-provider.tsx` wrapper.
+- [x] **Theme toggle** in `components/theme-toggle.tsx`: `ThemeMenu` in the navbar on desktop, `ThemeOptions` in the sheet on mobile. Layout follows `docs/style.md`.
+- [x] **Toaster** in `app/layout.tsx` with `limit={5}`: at most 5 toasts on screen at once (Base UI's default is 3). Nothing calls `toast.add` yet.
+
+## Note: hydration mismatch
+
+- The server sends finished HTML first, then React in the browser takes over that HTML. This takeover is called hydration.
+- React expects the HTML to be exactly what it would render itself. If the server and the browser render something different, that is a hydration mismatch, and React warns about it in the console.
+- The theme causes this, because the saved theme lives in the browser (`localStorage`) and the server cannot read it.
+  - `next-themes` puts the `dark` or `light` class on `<html>` before React takes over, so `<html>` differs from the server's. `suppressHydrationWarning` on `<html>` in `app/layout.tsx` tells React this difference is expected.
+  - The theme toggle would show a different active icon on the server and in the browser. How it avoids that is in the next note.
+
+## Note: how the theme toggle gets the theme
+
+- The theme value comes from `useTheme()` of `next-themes`. In the browser, `next-themes` reads it from `localStorage` under the key `theme`, and `setTheme` writes it there. On the server there is no `localStorage`, so `theme` is `undefined`.
+- `useSyncExternalStore` in `useCurrentTheme` does not know the theme. It only gives `mounted`, through three functions in this order:
+  - `subscribe` (`() => () => {}`): React passes it a callback to call when the value changes, and it returns a function that stops listening. Here it does nothing, because "running in the browser" never changes.
+  - `getSnapshot` (`() => true`): the value in the browser.
+  - `getServerSnapshot` (`() => false`): the value on the server, and in the browser during hydration.
+- `mounted` touches the theme in one line: `theme: mounted ? theme : undefined`. While `mounted` is `false`, the theme is forced to `undefined`, the same as on the server, so no icon is active. Once it is `true`, the real theme from `localStorage` is used.
+- Order when the page loads:
+  1. Server: React calls `getServerSnapshot`, `mounted` is `false`, no icon active.
+  2. Browser, hydration: React still calls `getServerSnapshot`, so `mounted` is `false` and the HTML matches the server's.
+  3. Browser, right after hydration: React calls `getSnapshot`, gets `true` instead of `false`, and renders again. The saved theme's icon becomes active.
+- Only `ThemeMenu`, the icon in the desktop navbar, goes through hydration. `ThemeOptions` sits in the sheet, and the sheet renders its content only while it is open (Base UI's `keepMounted` defaults to `false`). So `ThemeOptions` first renders after hydration, React calls `getSnapshot` right away, and `mounted` is `true` from the first render.
 
 ## Note: the two generate commands
 
