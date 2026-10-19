@@ -3,6 +3,7 @@ import { headers } from "next/headers"
 import { ListIcon, MagnifyingGlassIcon, UserIcon } from "@phosphor-icons/react/dist/ssr"
 import { auth } from "@/lib/auth"
 import { category } from "@/lib/schema/app"
+import { cn } from "@/lib/utils"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button, buttonVariants } from "@/components/ui/button"
 import {
@@ -26,7 +27,11 @@ function SearchBar() {
           name="q"
           type="search"
           placeholder="Search patterns"
-          className="h-8 border-transparent bg-secondary pl-8 text-secondary-foreground placeholder:text-secondary-foreground/70"
+          className={cn(
+            "h-8 border-transparent pl-8",
+            "bg-secondary text-secondary-foreground placeholder:text-secondary-foreground/70",
+            "dark:bg-secondary",
+          )}
         />
       </div>
       <Button type="submit" size="lg">

@@ -114,7 +114,7 @@ Every item in the checklist follows these rules:
 - [x] **Category dropdown** in the navbar, in `components/category-toggle.tsx`. The list comes from the `category` enum in `lib/schema/app.ts`, so it stays the same as the database. The navbar passes the names in, so the client component does not import the schema.
   - A collapsible does not close by itself, so on desktop an invisible layer behind the open list closes it on a click outside. It also closes when a category is clicked. On mobile it stays as before, open in place in the sheet.
 - [x] **Light colors** set in `:root` of `app/globals.css`: soft purple and yellow. Which token gets which color is in `docs/style.md`.
-- [ ] **Dark colors** in `.dark` are still shadcn's gray.
+- [x] **Dark colors** set in `.dark` of `app/globals.css`: near black with a purple tint, lavender buttons, pastel yellow accents. Which token gets which color is in `docs/style.md`.
 - [x] **Theme package** `next-themes` installed, as in shadcn's Next.js dark mode guide. https://ui.shadcn.com/docs/dark-mode/next
   ```powershell
   npm install next-themes
