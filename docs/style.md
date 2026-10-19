@@ -18,7 +18,7 @@ How the app looks: which components are on screen, where they sit, and what they
 
 ## Colors
 
-Soft purple and yellow. The values are in `app/globals.css`: `:root` for light, `.dark` for dark.
+Soft purple and yellow. The values are in `app/globals.css`: `:root` for light, `.dark` for dark. Both list every token in the same order, so each light line has its dark line at the same spot.
 
 Light:
 
@@ -26,3 +26,10 @@ Light:
 - **Yellow:** `accent` (hover on categories and dropdown items, the profile icon), pastel with dark brown text. `secondary` (search bar) is a paler yellow with the same text color.
 - **Background:** pale purple, darker than the white navbar so the two stand apart. `card` and `popover` (navbar, dropdowns) stay pure white.
 - **Text:** dark purple gray instead of black.
+
+Dark:
+
+- **Purple:** `primary` (the same buttons), a darker and stronger lavender than in light, with dark purple text. On hover the button gets darker (30% of the text color mixed in). `ring` is the same lavender. `muted`, `border` and `input` are dark grays with a purple tint, one step above `card`.
+- **Yellow:** `accent` (hover on categories and dropdown items, the profile icon), pastel with dark brown text. `secondary` (search bar) is a pastel yellow close to `accent`, with the same text color. shadcn's `Input` sets its own dark background, so the navbar sets `dark:bg-secondary` on it.
+- **Background:** near black with a purple tint. `card` and `popover` (navbar, dropdowns) are one step lighter.
+- **Text:** off-white with a purple tint, `muted-foreground` a mid gray.
