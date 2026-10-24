@@ -122,6 +122,7 @@ Every item in the checklist follows these rules:
 - [x] **Theme provider** from `next-themes` wraps the app in `app/layout.tsx`: class on `<html>`, System by default. Imported straight from the package, since it already ships as a client component, so no `components/theme-provider.tsx` wrapper.
 - [x] **Theme toggle** in `components/theme-toggle.tsx`: `ThemeMenu` in the navbar on desktop, `ThemeOptions` in the sheet on mobile. Layout follows `docs/style.md`.
 - [x] **Toaster** in `app/layout.tsx` with `limit={5}`: at most 5 toasts on screen at once (Base UI's default is 3). Nothing calls `toast.add` yet.
+- [x] **Seeder** written in `lib/seed.mts` for development data, with a `seed` script in `package.json`. How it works is in the note below.
 
 ## Note: hydration mismatch
 
@@ -160,5 +161,14 @@ Adding other tables later:
 
 The split is about what changes, not when.
 
-- `DIRECT_URL` (direct, host without `-pooler`): any change to the table structure, every time. Creating the tables at init, and also adding a column or a table later. Used by drizzle-kit only.
+- `DIRECT_URL` (direct, host without `-pooler`): any change to the table structure, every time. Creating the tables at init, and also adding a column or a table later. Used by drizzle-kit, and locally by the seeder.
 - `DATABASE_URL` (pooled, host contains `-pooler`): the data inside the tables, through the app. Register, login, saving a Pattern, posting a Recreate.
+
+## Note: the seeder
+
+- Every account shares one password, set in `lib/seed.mts`.
+- Passwords are hashed with Better Auth's own `hashPassword` and stored in `account` as provider `credential`, the same way sign-up does it, so seeded accounts log in like registered ones.
+- Every run starts fresh: it drops schemas `public` and `drizzle`, runs every migration in `drizzle/` again, then inserts. Anything else in the local database is lost.
+- It stops before dropping anything unless `DIRECT_URL` points to `localhost`, so it never wipes Neon.
+- The inserts go in one transaction, so a failure leaves the tables empty instead of half filled.
+- Every image is `public/window.svg`, already in the repo, since Vercel Blob is not set up yet.
