@@ -46,7 +46,7 @@ export async function Navbar() {
   const user = session?.user ?? null
 
   return (
-    <header className="border-b bg-card">
+    <header className="border-b bg-card text-card-foreground">
       <nav className="mx-auto flex h-14 max-w-6xl items-center gap-4 px-4 md:grid md:grid-cols-[1fr_auto_1fr]">
         <div className="flex items-center gap-2 md:justify-self-start">
           <Sheet>

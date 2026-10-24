@@ -111,6 +111,7 @@ Every item in the checklist follows these rules:
   - Links go to pages that don't exist yet: `/patterns/new`, `/about`, `/search`, `/my/patterns`, `/my/reviews`, `/settings`, `/login`, `/register`.
   - Logout does nothing yet. It gets wired up with login, since there is no way to be logged in before that.
   - Icons in this server component come from `@phosphor-icons/react/dist/ssr`.
+  - The navbar sets its own text color (`text-card-foreground`). Next's built-in 404 page sets `body` to white text when the system is in dark mode, and the navbar used to inherit it, so the menu button, logo and theme icon disappeared on the light navbar.
 - [x] **Category dropdown** in the navbar, in `components/category-toggle.tsx`. The list comes from the `category` enum in `lib/schema/app.ts`, so it stays the same as the database. The navbar passes the names in, so the client component does not import the schema.
   - A collapsible does not close by itself, so on desktop an invisible layer behind the open list closes it on a click outside. It also closes when a category is clicked. On mobile it stays as before, open in place in the sheet.
 - [x] **Light colors** set in `:root` of `app/globals.css`: soft purple and yellow. Which token gets which color is in `docs/style.md`.
