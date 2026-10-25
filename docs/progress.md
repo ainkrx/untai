@@ -1,6 +1,6 @@
 # Progress
 
-What has been done in this project, in order, with implementation notes. Rules and flows are in `docs/app-flow.md`; how it looks is in `docs/style.md`.
+What has been done in this project, in order, with implementation notes. Rules and flows are in `docs/app-flow.md`; how it looks is in `docs/style.md`; what has to be tested is in `docs/testing.md`.
 
 ## Format
 
@@ -124,6 +124,18 @@ Every item in the checklist follows these rules:
 - [x] **Theme toggle** in `components/theme-toggle.tsx`: `ThemeMenu` in the navbar on desktop, `ThemeOptions` in the sheet on mobile. Layout follows `docs/style.md`.
 - [x] **Toaster** in `app/layout.tsx` with `limit={5}`: at most 5 toasts on screen at once (Base UI's default is 3). Nothing calls `toast.add` yet.
 - [x] **Seeder** written in `lib/seed.mts` for development data, with a `seed` script in `package.json`. How it works is in the note below.
+- [x] **Testing plan** written in `docs/testing.md`: what to test on each page, whether each item is Unit, Integration or E2E, and which items are optional because they need email verification. Any change to a rule in `docs/app-flow.md` or to logic on the server is checked against that file, and the file is updated in the same change, since everything about testing lives there.
+- [x] **Test packages** `vitest` and `@playwright/test` installed, with only Chromium for Playwright:
+  ```powershell
+  npm install -D vitest @playwright/test "@types/node@^22"
+  npx playwright install chromium
+  ```
+  `@types/node` goes from `^20` (the `create-next-app` default) to `^22`, since `vitest` 5 refuses `@types/node` 20 and the project runs on Node 22 (`node -v`, `Dockerfile`).
+  Nothing for testing React components (`jsdom`, `@testing-library/react`, `@vitejs/plugin-react`), since `docs/testing.md` has no component tests.
+- [x] **Test database** in `compose.test.yaml`: Postgres 18 on port 5433, database `untai_test`, no volume. Its URL is `TEST_DATABASE_URL` in `test/seed-test-db.ts`, which both configs use in place of the database URLs from `.env`.
+- [x] **Vitest config** in `vitest.config.mts`, from the Manual Setup in https://nextjs.org/docs/app/guides/testing/vitest without the React plugin and `vite-tsconfig-paths`. Every line that differs from it has a comment saying why. Project `unit` runs `*.test.ts`, project `integration` runs `*.itest.ts` one file at a time, after `test/seed-test-db.ts` rebuilds the test database with the seeder. Run with `npx vitest`.
+- [x] **Playwright config** in `playwright.config.ts`, from https://github.com/vercel/next.js/blob/canary/examples/with-playwright/playwright.config.ts. Every line that differs from it has a comment saying why. Chromium only (Desktop Chrome and Mobile Chrome), tests in `e2e/`, starts `next dev` on port 3001 against the test database after the same seeding. Run with `npx playwright test`.
+- [x] **Git** ignores `test-results/` and `playwright-report/`, which Playwright writes after a run.
 
 ## Note: hydration mismatch
 
@@ -173,3 +185,21 @@ The split is about what changes, not when.
 - It stops before dropping anything unless `DIRECT_URL` points to `localhost`, so it never wipes Neon.
 - The inserts go in one transaction, so a failure leaves the tables empty instead of half filled.
 - Every image is `public/window.svg`, already in the repo, since Vercel Blob is not set up yet.
+
+## Note: how the tests run
+
+- Integration tests and E2E need the test database running first. It is the Postgres container in `compose.test.yaml` (port 5433, database `untai_test`), started once with:
+  ```powershell
+  docker compose -f compose.test.yaml up -d
+  ```
+- `test/seed-test-db.ts` fills that database before each run. It runs the same seeder as `npm run seed`, but pointed at the test database, so the seeder clears and refills the test database and never touches the development one.
+  - It points the seeder there by setting `DIRECT_URL` to the test database before the seeder starts. The seeder's first line loads `.env`, where `DIRECT_URL` is the development database, but dotenv only fills variables that are still empty, so the test address stays.
+  - It starts the seeder as a separate process instead of importing it, because `lib/seed.mts` ends with `process.exit(0)`, which would stop the whole test run.
+- `npx vitest` reads `vitest.config.mts`:
+  1. It replaces `DATABASE_URL` with the test database.
+  2. Unit tests (`*.test.ts`) run right away. They use no database.
+  3. Integration tests (`*.itest.ts`) wait until `test/seed-test-db.ts` has filled the database, then run one file at a time, since they all share it.
+- `npx playwright test` reads `playwright.config.ts`:
+  1. It runs `test/seed-test-db.ts`.
+  2. It starts the app with `next dev` on port 3001, connected to the test database. Port 3000 stays free for the normal dev server.
+  3. It opens Chromium and runs the tests in `e2e/` against `localhost:3001`.

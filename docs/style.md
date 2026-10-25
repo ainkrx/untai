@@ -1,6 +1,6 @@
 # Style
 
-How the app looks: which components are on screen, where they sit, and what they look like. Only for what has been built. Rules and flows are in `docs/app-flow.md`; what has been built is in `docs/progress.md`.
+How the app looks: which components are on screen, where they sit, and what they look like. Only for what has been built. Rules and flows are in `docs/app-flow.md`; what has been built is in `docs/progress.md`; what has to be tested is in `docs/testing.md`.
 
 ## Navbar
 

@@ -1,0 +1,14 @@
+# Postgres for tests only, never the development database. 
+# To start: docker compose -f compose.test.yaml up -d
+# No volume: the seeder rebuilds it before every run, so nothing in it is kept.
+name: untai-test
+
+services:
+  db-test:
+    image: postgres:18-alpine
+    ports:
+      - 5433:5432
+    environment:
+      POSTGRES_DB: untai_test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres

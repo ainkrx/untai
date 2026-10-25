@@ -1,6 +1,6 @@
 # Crochet pattern sharing app design
 
-Rules and flows of the app: who can do what, where each action leads, and what each page contains. How it looks is in `docs/style.md`; what has been built is in `docs/progress.md`.
+Rules and flows of the app: who can do what, where each action leads, and what each page contains. How it looks is in `docs/style.md`; what has been built is in `docs/progress.md`; what has to be tested is in `docs/testing.md`.
 
 ## Overview
 
@@ -15,7 +15,7 @@ Personal project: a site where users upload crochet patterns and share the resul
 - Drizzle ORM
 - Better Auth (login, session, email verification code, forgot-password code)
 - Email: Nodemailer through the owner's own Gmail (SMTP and an app password), or Brevo or a similar provider. If none of them works, see Email fallback below.
-- Testing: Vitest for pure logic; Playwright E2E for every flow
+- Testing: Vitest integration tests against a test database for the server rules, Vitest unit tests for pure logic, Playwright E2E only for flows across several pages. The list is in `docs/testing.md`.
 - Tailwind and shadcn/ui
 - No likes, no points/ledger system (cut for v1: no clear purpose yet, and it adds takedown-retraction complexity for no payoff)
 
@@ -64,7 +64,7 @@ Personal project: a site where users upload crochet patterns and share the resul
 **PatternCounter**
 - personal counters per (user, pattern), separate from StepProgress and not tied to any specific step
 - two counters: Row and Stitch, shown under the Pattern's title, whether the Pattern is `public` or `private`; no adding, renaming or deleting counters
-- each is incremented/decremented manually, and can be reset to 0
+- each is incremented/decremented manually, and can be reset to 0; a counter at 0 cannot be decremented, so it never goes below 0
 - id, user_id, pattern_id, row_count, stitch_count, updated_at
 - scoped per pattern: opening a different Pattern shows that Pattern's own counters
 - on the Create page the counters work from the draft's first save, since the Pattern has no id before that
@@ -72,7 +72,7 @@ Personal project: a site where users upload crochet patterns and share the resul
 ## Access rules
 
 - **Guest (not logged in):** can browse the home page, search page (pattern list), pattern detail, Recreates. Cannot open public profile pages. On a pattern's steps, sees only steps 1 to 3. Full steps require login.
-- **Logged in (always verified, since verification gates login):** sees full pattern steps, can upload own Pattern, edit it only while it is `private`, delete it only while it is `private` or `in_review`, post a Recreate on another user's Pattern, delete their own Recreate (no editing), report a Pattern or Recreate.
+- **Logged in (always verified, since verification gates login):** a member who logs in on the login page lands on the home page. Sees full pattern steps, can upload own Pattern, edit it only while it is `private`, delete it only while it is `private` or `in_review`, post a Recreate on another user's Pattern, delete their own Recreate (no editing), report a Pattern or Recreate.
 - **Admin:** a separate kind of access. The admin account is only for admin work (the verification queue and the report queue), not the regular user features. The admin logs in on the same login page and is sent straight to the admin area, which has its own Logout button. Opening any regular page (home, search, Pattern detail, profile) sends the admin back to the admin area, so none of the logged-in user rules apply to the admin. Opens the full content of an `in_review` Pattern and approves it (it becomes `public`) or rejects it with a reason (it goes back to `private`). Sees reported queue, including the full content of each reported Pattern or Recreate, and can take down a reported Pattern (it goes from `public` back to `private`, with a reason) or a reported Recreate (it is deleted).
 
 ## Layout

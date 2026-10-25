@@ -32,3 +32,7 @@ Applies to every piece of text in this project: docs, md files, code comments, c
 
 - Notes and update blocks are one short line saying what changed. No explanation, no background.
 - Update blocks apply only to md files for pages and features. `docs/progress.md` and `docs/style.md` do not use them.
+
+## Testing
+
+- Every change to a rule in `docs/app-flow.md` or to logic on the server is checked against `docs/testing.md`, and that file is updated in the same change. Everything about testing lives there.
